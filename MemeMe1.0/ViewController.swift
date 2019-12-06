@@ -24,11 +24,13 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         NSAttributedString.Key.font: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
         NSAttributedString.Key.foregroundColor: UIColor.white,
         NSAttributedString.Key.strokeColor: UIColor.black,
-        NSAttributedString.Key.strokeWidth : 2.0
+        NSAttributedString.Key.strokeWidth : -2.0
     ]
     
     let topText = "TOP"
     let bottomText = "BOTTOM"
+    
+    fileprivate var shouldAdjustViewFrame = false
     
     //MARK: - Lifecycle Methods
     
@@ -81,7 +83,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let activityVC = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
         
         activityVC.completionWithItemsHandler = { [weak self] type, completed, items, error in
-            self?.save(memedImage)
+            
+            if completed {
+               self?.save(memedImage)
+            }
+            
             activityVC.dismiss(animated: true, completion: nil)
         }
         
@@ -113,9 +119,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     fileprivate func setTextfieldTextWithAttributes(_ textfield: UITextField, _ text: String) {
         textfield.text = text
-        
         textfield.defaultTextAttributes = memeTextAttributes
-        
         textfield.textAlignment = .center
     }
     
@@ -126,11 +130,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @objc fileprivate func keyboardWillShow(_ notification: Notification) {
-        view.frame.origin.y = -getKeyboardHeight(notification)
+        if shouldAdjustViewFrame {
+            view.frame.origin.y = -getKeyboardHeight(notification)
+        }
     }
     
     @objc fileprivate func keyboardWillHide() {
-        view.frame.origin.y = 0
+        if shouldAdjustViewFrame {
+            view.frame.origin.y = 0
+        }
     }
     
     fileprivate func subscribeToKeyboardNotifications() {
@@ -178,10 +186,21 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
 extension ViewController: UITextFieldDelegate {
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        textField.text = textField.text!.uppercased()
+        return true
+    }
+    
     func textFieldDidBeginEditing(_ textField: UITextField) {
         
         if textField.text == topText || textField.text == bottomText {
             textField.text = ""
+        }
+        
+        if textField.tag == 2 {
+            shouldAdjustViewFrame = true
+        } else {
+            shouldAdjustViewFrame = false
         }
         
     }
