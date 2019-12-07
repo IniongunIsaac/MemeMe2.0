@@ -5,7 +5,9 @@ An iPhone app that enables a user to take a picture, and add text at the top and
 ### How to run(installation):
 
 * Clone this repository.
-* Open `xcodeproj` project using Xcode.
+* Cd into the root directory.
+* Run `pod install` from the root directory to install the project's dependencies.
+* Open `xcworkspace` project using Xcode.
 * Build and run the project on the XCode Simulator or any physically connected iOS device.
 
 ### Note:
