@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import RSKImageCropper
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController {
 
     @IBOutlet weak var memeImageView: UIImageView!
     @IBOutlet weak var cameraButton: UIBarButtonItem!
@@ -20,8 +21,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     let pickerController = UIImagePickerController()
     
-    let memeTextAttributes: [NSAttributedString.Key: Any] = [
-        NSAttributedString.Key.font: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+    let textSize = 40
+    
+    var memeTextAttributes: [NSAttributedString.Key: Any] = [
+        NSAttributedString.Key.font: UIFont(name: "Impact", size: 40)!,
         NSAttributedString.Key.foregroundColor: UIColor.white,
         NSAttributedString.Key.strokeColor: UIColor.black,
         NSAttributedString.Key.strokeWidth : -2.0
@@ -95,20 +98,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
     }
     
-    //MARK: - UIImagePickerControllerDelegate Methods
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        if let image = info[.originalImage] as? UIImage {
-            memeImageView.image = image
-            toggleShareMemeMeButtonIsEnabledProperty(true)
-        }
-        
-        dismiss(animated: true, completion: nil)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
+    @IBAction func fontSelectorTapped(_ sender: UIBarButtonItem) {
+        showFontStylesActionSheet()
     }
     
     //MARK:- Private Utility Methods
@@ -180,6 +171,62 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let meme = Meme(topText: topTextfield.text!, bottomText: bottomTextfield.text!, originalImage: memeImageView.image!, memedImage: memedImage)
     }
     
+    fileprivate func showFontStylesActionSheet() {
+        
+        let alertController = UIAlertController(title: "Font Styles", message: "Select your preferred font style", preferredStyle: .actionSheet)
+        
+        let defaultFont = UIAlertAction(title: "Default", style: .default) { [weak self] _ in
+            
+            guard let self = self else { return }
+            
+            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Impact", size: CGFloat(self.textSize))
+            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
+            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
+            
+        }
+        
+        let courierFont = UIAlertAction(title: "Courier", style: .default) { [weak self] _ in
+            
+            guard let self = self else { return }
+            
+            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Courier", size: CGFloat(self.textSize))
+            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
+            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
+            
+        }
+        
+        let georgiaFont = UIAlertAction(title: "Georgia", style: .default) { [weak self] _ in
+        
+            guard let self = self else { return }
+            
+            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Georgia", size: CGFloat(self.textSize))
+            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
+            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
+            
+        }
+        
+        let helveticaNeueFont = UIAlertAction(title: "Helvetica Neue", style: .default) { [weak self] _ in
+        
+            guard let self = self else { return }
+            
+            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "HelveticaNeue", size: CGFloat(self.textSize))
+            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
+            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
+            
+        }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alertController.addAction(defaultFont)
+        alertController.addAction(courierFont)
+        alertController.addAction(georgiaFont)
+        alertController.addAction(helveticaNeueFont)
+        alertController.addAction(cancel)
+        
+        present(alertController, animated: true, completion: nil)
+        
+    }
+    
 }
 
 //MARK: - UITextFieldDelegate Methods
@@ -221,5 +268,42 @@ extension ViewController: UITextFieldDelegate {
         }
     }
     
+    
+}
+
+//MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate and RSKImageCropViewControllerDelegate Methods
+
+extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, RSKImageCropViewControllerDelegate {
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        if let image = info[.originalImage] as? UIImage {
+            
+            toggleShareMemeMeButtonIsEnabledProperty(true)
+            
+            var imageCropVC: RSKImageCropViewController!
+            imageCropVC = RSKImageCropViewController(image: image, cropMode: RSKImageCropMode.square)
+            imageCropVC.delegate = self
+            navigationController?.pushViewController(imageCropVC, animated: true)
+        
+        }
+        
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imageCropViewControllerDidCancelCrop(_ controller: RSKImageCropViewController) {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func imageCropViewController(_ controller: RSKImageCropViewController, didCropImage croppedImage: UIImage, usingCropRect cropRect: CGRect, rotationAngle: CGFloat) {
+        
+        memeImageView.image = croppedImage
+        
+        navigationController?.popViewController(animated: true)
+    }
     
 }
