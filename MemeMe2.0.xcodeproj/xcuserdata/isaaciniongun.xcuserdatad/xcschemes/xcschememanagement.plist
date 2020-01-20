@@ -4,18 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Pods-MemeMe2.0.xcscheme</key>
+		<key>MemeMe2.0.xcscheme_^#shared#^_</key>
 		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>RSKImageCropper.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
+			<key>orderHint</key>
+			<integer>2</integer>
 		</dict>
 	</dict>
-	<key>SuppressBuildableAutocreation</key>
-	<dict/>
 </dict>
 </plist>

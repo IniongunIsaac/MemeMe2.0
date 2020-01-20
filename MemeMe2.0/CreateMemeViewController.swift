@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  MemeMe1.0
+//  MemeMe2.0
 //
 //  Created by Isaac Iniongun on 05/12/2019.
 //  Copyright © 2019 Ing Groups. All rights reserved.
@@ -9,7 +9,7 @@
 import UIKit
 import RSKImageCropper
 
-class ViewController: UIViewController {
+class CreateMemeViewController: UIViewController {
 
     @IBOutlet weak var memeImageView: UIImageView!
     @IBOutlet weak var cameraButton: UIBarButtonItem!
@@ -35,6 +35,10 @@ class ViewController: UIViewController {
     
     fileprivate var shouldAdjustViewFrame = false
     
+    fileprivate let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    var currentMeme: Meme?
+    
     //MARK: - Lifecycle Methods
     
     override func viewDidLoad() {
@@ -48,6 +52,8 @@ class ViewController: UIViewController {
         
         setTextfieldTextWithAttributes(topTextfield, topText)
         setTextfieldTextWithAttributes(bottomTextfield, bottomText)
+        
+        setMemeDetails()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -79,6 +85,10 @@ class ViewController: UIViewController {
         present(pickerController, animated: true, completion: nil)
     }
     
+    @IBAction func cancelMeme(_ sender: Any) {
+        navigationController?.popViewController(animated: true)
+    }
+    
     @IBAction func shareMemeMe(_ sender: Any) {
         
         let memedImage = generateMemedImage()
@@ -91,7 +101,7 @@ class ViewController: UIViewController {
                self?.save(memedImage)
             }
             
-            activityVC.dismiss(animated: true, completion: nil)
+            self?.navigationController?.popToRootViewController(animated: true)
         }
         
         present(activityVC, animated: true, completion: nil)
@@ -103,6 +113,14 @@ class ViewController: UIViewController {
     }
     
     //MARK:- Private Utility Methods
+    
+    fileprivate func setMemeDetails() {
+        if let currentMeme = currentMeme {
+            setTextfieldTextWithAttributes(topTextfield, currentMeme.topText)
+            setTextfieldTextWithAttributes(bottomTextfield, currentMeme.bottomText)
+            memeImageView.image = currentMeme.originalImage
+        }
+    }
     
     fileprivate func toggleShareMemeMeButtonIsEnabledProperty(_ shouldEnable: Bool) {
         shareMemeMeButton.isEnabled = shouldEnable
@@ -167,8 +185,25 @@ class ViewController: UIViewController {
     }
     
     fileprivate func save(_ memedImage: UIImage) {
-        // Create the meme
-        let meme = Meme(topText: topTextfield.text!, bottomText: bottomTextfield.text!, originalImage: memeImageView.image!, memedImage: memedImage)
+        
+        //if we're editing a meme then we just want to update it
+        if let currentMeme = currentMeme {
+            var meme = appDelegate.memes.first { $0.id == currentMeme.id }
+            meme?.topText = topTextfield.text!
+            meme?.bottomText = bottomTextfield.text!
+            meme?.originalImage = memeImageView.image!
+            meme?.memedImage = memedImage
+            
+            let index = appDelegate.memes.firstIndex { $0.id == currentMeme.id }!
+            appDelegate.memes[index] = meme!
+            
+        } else {
+            // Create the meme
+            let meme = Meme(topText: topTextfield.text!, bottomText: bottomTextfield.text!, originalImage: memeImageView.image!, memedImage: memedImage)
+            //save the meme
+            appDelegate.memes.append(meme)
+        }
+        
     }
     
     fileprivate func showFontStylesActionSheet() {
@@ -231,7 +266,7 @@ class ViewController: UIViewController {
 
 //MARK: - UITextFieldDelegate Methods
 
-extension ViewController: UITextFieldDelegate {
+extension CreateMemeViewController: UITextFieldDelegate {
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         textField.text = textField.text!.uppercased()
@@ -273,7 +308,7 @@ extension ViewController: UITextFieldDelegate {
 
 //MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate and RSKImageCropViewControllerDelegate Methods
 
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, RSKImageCropViewControllerDelegate {
+extension CreateMemeViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate, RSKImageCropViewControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         

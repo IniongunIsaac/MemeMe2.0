@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double Pods_MemeMe1_0VersionNumber;
-FOUNDATION_EXPORT const unsigned char Pods_MemeMe1_0VersionString[];
+FOUNDATION_EXPORT double Pods_MemeMe2_0VersionNumber;
+FOUNDATION_EXPORT const unsigned char Pods_MemeMe2_0VersionString[];
 
