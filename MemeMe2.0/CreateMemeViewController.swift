@@ -210,56 +210,27 @@ class CreateMemeViewController: UIViewController {
         
         let alertController = UIAlertController(title: "Font Styles", message: "Select your preferred font style", preferredStyle: .actionSheet)
         
-        let defaultFont = UIAlertAction(title: "Default", style: .default) { [weak self] _ in
-            
-            guard let self = self else { return }
-            
-            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Impact", size: CGFloat(self.textSize))
-            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
-            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
-            
-        }
-        
-        let courierFont = UIAlertAction(title: "Courier", style: .default) { [weak self] _ in
-            
-            guard let self = self else { return }
-            
-            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Courier", size: CGFloat(self.textSize))
-            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
-            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
-            
-        }
-        
-        let georgiaFont = UIAlertAction(title: "Georgia", style: .default) { [weak self] _ in
-        
-            guard let self = self else { return }
-            
-            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "Georgia", size: CGFloat(self.textSize))
-            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
-            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
-            
-        }
-        
-        let helveticaNeueFont = UIAlertAction(title: "Helvetica Neue", style: .default) { [weak self] _ in
-        
-            guard let self = self else { return }
-            
-            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: "HelveticaNeue", size: CGFloat(self.textSize))
-            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
-            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
-            
-        }
-        
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        alertController.addAction(defaultFont)
-        alertController.addAction(courierFont)
-        alertController.addAction(georgiaFont)
-        alertController.addAction(helveticaNeueFont)
-        alertController.addAction(cancel)
+        alertController.addAction(getFontActionAlert(title: "Default", fontName: "Impact"))
+        alertController.addAction(getFontActionAlert(title: "Courier", fontName: "Courier"))
+        alertController.addAction(getFontActionAlert(title: "Georgia", fontName: "Georgia"))
+        alertController.addAction(getFontActionAlert(title: "Helvetica Neue", fontName: "HelveticaNeue"))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         present(alertController, animated: true, completion: nil)
         
+    }
+    
+    fileprivate func getFontActionAlert(title: String, fontName: String) -> UIAlertAction {
+        
+        return UIAlertAction(title: title, style: .default) { [weak self] _ in
+        
+            guard let self = self else { return }
+            
+            self.memeTextAttributes[NSAttributedString.Key.font] = UIFont(name: fontName, size: CGFloat(self.textSize))
+            self.setTextfieldTextWithAttributes(self.topTextfield, self.topTextfield.text!)
+            self.setTextfieldTextWithAttributes(self.bottomTextfield, self.bottomTextfield.text!)
+            
+        }
     }
     
 }
